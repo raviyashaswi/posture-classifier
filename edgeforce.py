@@ -2,6 +2,10 @@ import cv2
 import mediapipe as mp
 from sklearn.utils import shuffle
 from sklearn import tree
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 import numpy as np
 import os
 
@@ -79,12 +83,33 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 X = np.asarray(all_landmarks)
 Y = np.asarray(all_labels)
 X, Y = shuffle(X, Y)
-
+y =[1]
 X_test = np.asarray(test_landmarks)
+X, X_test, Y, Y_test = train_test_split(
+    X, 
+    Y, 
+    test_size=0.2, 
+    random_state=42, 
+    stratify=Y
+)
+clf1 = RandomForestClassifier()
+clf1 = clf1.fit(X, Y)
+clf2 = SVC(kernel="linear", C=1)
+clf2 = clf2.fit(X, Y)
+clf3 = tree.DecisionTreeClassifier()
+clf3 = clf1.fit(X, Y)
 
-clf = tree.DecisionTreeClassifier()
-clf = clf.fit(X, Y)
-
+clf= clf1
+clf1 = clf1.predict(X_test)
+print(clf1)
+accuracy = accuracy_score(clf1, Y_test)
+print(accuracy)
+clf2=clf2.predict(X_test)
+accuracy = accuracy_score(clf2, Y_test)
+print(accuracy)
+clf3=clf3.predict(X_test)
+accuracy = accuracy_score(clf3, Y_test)
+print(accuracy)
 print(f"Shape of training data (X): {X.shape}")
 print(f"Shape of training labels (Y): {Y.shape}")
 
